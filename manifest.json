@@ -1,0 +1,22 @@
+{
+  "name": "مقارئ الأوقاف الإلكترونية",
+  "short_name": "المقارئ",
+  "description": "تطبيق متابعة حضور طالبات مقارئ الأوقاف الإلكترونية",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#c9a84c",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "https://oalansa32-alt.github.io/Kannaalansary/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://oalansa32-alt.github.io/Kannaalansary/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

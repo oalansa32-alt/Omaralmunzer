@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#1a1a2e"> 
+<meta name="display" content="standalone">
+    <title>مقارئ الأوقاف الإلكترونية - تقرير متابعة الطالبات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js">
+    </script>
+    <style>
+        :root {
+            --gold: #c9a84c;
+            --gold-light: #f0d080;
+            --gold-pale: #fdf6e3;
+            --gold-border: #e8c96a;
+            --green: #2e7d32;
+            --green-light: #a5d6a7;
+            --red-light: #ef9a9a;
+            --dark: #1a1a2e;
+            --dark2: #16213e;
+            --text: #2c2c2c;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        /* ===== الرأس ===== */
+        .app-header {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+            border: 2px solid var(--gold-border);
+            border-radius: 20px;
+            padding: 24px 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(201, 168, 76, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .app-header h1 {
+            font-family: 'Amiri', serif;
+            font-size: 1.6rem;
+            color: var(--gold-light);
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+        .app-header p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+        .ornament {
+            color: var(--gold);
+            font-size: 1.2rem;
+            margin: 0 8px;
+        }
+
+        /* ===== بطاقة المعلومات ===== */
+        .info-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            backdrop-filter: blur(10px);
+        }
+        .info-card-title {
+            color: var(--gold-light);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            opacity: 0.8;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .info-field label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .info-field input {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 10px;
+            padding: 9px 14px;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+        .info-field input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: rgba(201, 168, 76, 0.1);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+        }
+        .info-field input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* ===== شريط الإجراءات ===== */
+        .actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+            align-items: center;
+        }
+        .add-group {
+            display: flex;
+            gap: 8px;
+            flex: 1 1 280px;
+        }
+        .add-group input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 30px;
+            padding: 10px 18px;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+        }
+        .add-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: rgba(201, 168, 76, 0.1);
+        }
+        .add-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .btn-add {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, var(--gold), #e8b84b);
+            color: #1a1a2e;
+        }
+        .btn-export {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+        }
+        .btn-print {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: #fff;
+        }
+        .btn-import {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-clear {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+        }
+
+        /* ===== شريط الإحصاء ===== */
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .stat-chip {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            border-radius: 30px;
+            padding: 8px 18px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-chip strong {
+            color: var(--gold-light);
+        }
+
+        /* ===== الجدول ===== */
+        .table-wrapper {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(201, 168, 76, 0.2);
+        }
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1300px;
+            background: #fff;
+        }
+        thead th {
+            background: var(--dark);
+            color: var(--gold-light);
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 12px 6px;
+            border: 1px solid rgba(201, 168, 76, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            white-space: nowrap;
+        }
+        thead tr:first-child th {
+            border-bottom: 2px solid var(--gold);
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+        tbody tr:hover {
+            background: var(--gold-pale) !important;
+        }
+        tbody tr {
+            transition: background 0.15s;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 7px 4px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 0.85rem;
+        }
+        td.name {
+            text-align: right;
+            font-weight: 700;
+            min-width: 180px;
+            padding-right: 14px;
+            color: var(--dark);
+            background: var(--gold-pale);
+            font-size: 0.88rem;
+        }
+        td.num {
+            background: var(--dark);
+            color: var(--gold-light);
+            font-weight: 900;
+            width: 38px;
+            font-size: 0.8rem;
+        }
+        td.total {
+            font-weight: 900;
+            font-size: 1rem;
+            color: var(--dark);
+            background: #f5f5f5;
+            width: 55px;
+        }
+        td.cell {
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 900;
+            transition: all 0.1s;
+            user-select: none;
+            width: 46px;
+            min-width: 36px;
+        }
+        td.cell:hover {
+            opacity: 0.75;
+        }
+        td.cell[data-state="1"] {
+            background: var(--green-light);
+            color: #1b5e20;
+        }
+        td.cell[data-state="0"] {
+            background: var(--red-light);
+            color: #b71c1c;
+        }
+        td.cell[data-state="e"] {
+            background: #ffe0b2;
+            color: #e65100;
+        }
+        td.cell[data-state="m"] {
+            background: #e1bee7;
+            color: #6a1b9a;
+        }
+
+        /* picker المقرأة */
+        .halaqa-picker {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .hpk-btn {
+            background: rgba(201, 168, 76, 0.15);
+            border: none;
+            color: var(--gold-light);
+            font-size: 1.3rem;
+            width: 36px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .hpk-btn:hover {
+            background: rgba(201, 168, 76, 0.35);
+        }
+        .hpk-display {
+            flex: 1;
+            text-align: center;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 8px 0;
+            user-select: none;
+        }
+        td.note-cell {
+            min-width: 90px;
+            background: #fefefe;
+            font-size: 0.78rem;
+        }
+        td.action-cell {
+            padding: 4px;
+            background: #f9f9f9;
+            width: 36px;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .btn-icon:hover {
+            background: rgba(0, 0, 0, 0.07);
+            transform: scale(1.15);
+        }
+        .btn-icon.edit-btn {
+            color: #1565c0;
+        }
+        .btn-icon.del-btn {
+            color: #c62828;
+        }
+
+        /* أسطورة الألوان */
+        .legend-chip {
+            gap: 6px;
+        }
+        .leg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 0.85rem;
+        }
+        .leg-p {
+            background: #a5d6a7;
+            color: #1b5e20;
+        }
+        .leg-a {
+            background: #ef9a9a;
+            color: #b71c1c;
+        }
+        .leg-e {
+            background: #ffe0b2;
+            color: #e65100;
+        }
+        .leg-n {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .leg-m {
+            background: #e1bee7;
+            color: #6a1b9a;
+        }
+        /* ===== صفوف فارغة ===== */
+        tr.empty-placeholder td {
+            background: #fafafa;
+            border-color: #e8e8e8;
+        }
+        tr.empty-placeholder td.num {
+            background: #f0f0f0;
+            color: #ccc;
+        }
+        tr.empty-placeholder td.name {
+            background: #fafafa;
+        }
+        td.cell-disabled {
+            cursor: default !important;
+            pointer-events: none;
+            background: #f7f7f7 !important;
+        }
+
+        /* ===== صف التذييل ===== */
+        .footer-row td {
+            background: var(--dark) !important;
+            color: var(--gold-light);
+            font-weight: 700;
+            font-size: 0.78rem;
+            border-color: rgba(201, 168, 76, 0.2);
+        }
+
+        /* ===== رسالة فارغة ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ===== طباعة ===== */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .table-scroll {
+                overflow: visible !important;
+            }
+            table {
+                min-width: unset !important;
+                width: 100% !important;
+                font-size: 10px;
+            }
+            thead th {
+                background: #f1c40f !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td.cell[data-state="1"] {
+                background: #a5d6a7 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td.cell[data-state="0"] {
+                background: #ef9a9a !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td.cell[data-state="e"] {
+                background: #ffe0b2 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td.cell[data-state="m"] {
+                background: #e1bee7 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td.num {
+                background: #333 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td.name {
+                background: #fdf6e3 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .footer-row td {
+                background: #333 !important;
+                color: #f1c40f !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            @page {
+                size: landscape;
+                margin: 8mm;
+            }
+        }
+
+        /* ===== منتقي الشهر ===== */
+        .month-picker {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .mpk-btn {
+            background: rgba(201, 168, 76, 0.15);
+            border: none;
+            color: var(--gold-light);
+            font-size: 1.3rem;
+            width: 36px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .mpk-btn:hover {
+            background: rgba(201, 168, 76, 0.35);
+        }
+        .mpk-display {
+            flex: 1;
+            text-align: center;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 8px 4px;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        /* picker المعلمة */
+        .teacher-picker {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .tpk-btn {
+            background: rgba(201, 168, 76, 0.15);
+            border: none;
+            color: var(--gold-light);
+            font-size: 1.3rem;
+            width: 36px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .tpk-btn:hover {
+            background: rgba(201, 168, 76, 0.35);
+        }
+        .tpk-display {
+            flex: 1;
+            text-align: center;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 8px 4px;
+            user-select: none;
+        }
+
+        /* حقل المعلمة */
+        .teacher-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .teacher-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 10px;
+            padding: 9px 14px;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .teacher-input:not([readonly]) {
+            border-color: var(--gold);
+            background: rgba(201, 168, 76, 0.1);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+        }
+        .teacher-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .tip-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 8px;
+            padding: 7px 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .tip-btn:hover {
+            background: rgba(201, 168, 76, 0.25);
+            transform: scale(1.05);
+        }
+        .save-tip {
+            border-color: #27ae60;
+        }
+        .save-tip:hover {
+            background: rgba(39, 174, 96, 0.25);
+        }
+
+        /* أزرار الصلوات */
+        .prayer-picker {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .ppk-btn {
+            flex: 1;
+            min-width: 60px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 7px 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ppk-btn:hover {
+            background: rgba(201, 168, 76, 0.2);
+        }
+        .ppk-btn.active {
+            background: linear-gradient(135deg, var(--gold), #e8b84b);
+            color: #1a1a2e;
+            border-color: var(--gold);
+        }
+
+        /* أزرار الأيام */
+        .days-picker {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .dpk-btn {
+            flex: 1;
+            min-width: 70px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 8px 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dpk-btn:hover {
+            background: rgba(201, 168, 76, 0.2);
+        }
+        .dpk-btn.active {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff;
+            border-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== الرأس ===== -->
+<div class="app-header no-print">
+    <h1>مقارئ الأوقاف الإلكترونية</h1>
+    <p>تقرير متابعة الطالبات</p>
+</div>
+
+<!-- ===== معلومات الجدول ===== -->
+<div class="info-card no-print">
+    <div class="info-card-title">⚙ معلومات الجدول</div>
+    <div class="info-grid">
+        <div class="info-field">
+            <label>👩‍🏫 المعلمة</label>
+            <div class="teacher-input-wrap">
+                <input type="text" id="teacherInput" class="teacher-input" placeholder="أدخل اسم المعلمة..." readonly>
+                <button class="tip-btn edit-tip" id="teacherEditBtn" onclick="editTeacher()" title="تعديل">✏️</button>
+                <button class="tip-btn save-tip" id="teacherSaveBtn" onclick="saveTeacher()" title="حفظ" style="display:none">💾</button>
+            </div>
+        </div>
+        <div class="info-field">
+            <label>📅 الشهر / السنة</label>
+            <div class="month-picker">
+                <button class="mpk-btn" onclick="changeMonth(-1)" title="السابق">&#8250;</button>
+                <span id="monthDisplay" class="mpk-display">05 / 2026</span>
+                <button class="mpk-btn" onclick="changeMonth(1)" title="التالي">&#8249;</button>
+            </div>
+        </div>
+        <div class="info-field">
+            <label>⏰ التوقيت</label>
+            <div class="prayer-picker">
+                <button class="ppk-btn active" onclick="selectPrayer(this,'الفجر')">الفجر</button>
+                <button class="ppk-btn" onclick="selectPrayer(this,'الظهر')">الظهر</button>
+                <button class="ppk-btn" onclick="selectPrayer(this,'العصر')">العصر</button>
+                <button class="ppk-btn" onclick="selectPrayer(this,'المغرب')">المغرب</button>
+                <button class="ppk-btn" onclick="selectPrayer(this,'العشاء')">العشاء</button>
+            </div>
+        </div>
+        <div class="info-field" style="grid-column: 1 / -1;">
+            <label>📆 أيام الدرس</label>
+            <div class="days-picker">
+                <button class="dpk-btn" onclick="toggleDay(this,'الأحد')">الأحد</button>
+                <button class="dpk-btn" onclick="toggleDay(this,'الاثنين')">الاثنين</button>
+                <button class="dpk-btn" onclick="toggleDay(this,'الثلاثاء')">الثلاثاء</button>
+                <button class="dpk-btn" onclick="toggleDay(this,'الأربعاء')">الأربعاء</button>
+                <button class="dpk-btn active" onclick="toggleDay(this,'الخميس')">الخميس</button>
+                <button class="dpk-btn active" onclick="toggleDay(this,'الجمعة')">الجمعة</button>
+                <button class="dpk-btn active" onclick="toggleDay(this,'السبت')">السبت</button>
+            </div>
+        </div>
+        <div class="info-field">
+            <label>🕌 المقرأة</label>
+            <div class="halaqa-picker">
+                <button class="hpk-btn" onclick="changeHalaqa(-1)">&#8250;</button>
+                <span id="halaqaDisplay" class="hpk-display">مقرأة 57</span>
+                <button class="hpk-btn" onclick="changeHalaqa(1)">&#8249;</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== شريط الأدوات ===== -->
+<div class="actions-bar no-print">
+    <div class="add-group">
+        <input type="text" id="newName" placeholder="✏ اسم الطالبة الجديدة...">
+        <button class="btn btn-add" onclick="addStudent()">➕ إضافة</button>
+    </div>
+    <button class="btn btn-save" onclick="saveData()">💾 حفظ</button>
+    <input type="file" id="importCSVFile" accept=".csv,text/plain" style="display:none">
+    <button class="btn btn-import" onclick="document.getElementById('importCSVFile').click()">📂 CSV</button>
+    <input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none">
+    <button class="btn btn-import" onclick="document.getElementById('importExcelFile').click()">📊 Excel</button>
+    <button class="btn btn-export" onclick="exportToExcel()">📥 تصدير Excel</button>
+    <button class="btn btn-print" onclick="customPrint()">🖨️ طباعة</button>
+    <button class="btn" style="background:linear-gradient(135deg,#2980b9,#3498db);color:white;" onclick="exportPDF()" title="تصدير PDF مباشر">📄 تصدير PDF</button>
+    <input type="file" id="signatureFile" accept="image/*" style="display:none">
+    <button class="btn" style="background:linear-gradient(135deg,#2c3e50,#34495e);color:#f0d080;border:1px solid #c9a84c;" onclick="document.getElementById('signatureFile').click()" title="رفع التوقيع الإلكتروني">🖊 توقيع</button>
+    <button class="btn btn-clear" onclick="clearData()">🗑 مسح</button>
+</div>
+
+<!-- ===== إحصاء ===== -->
+<div class="stats-bar no-print">
+    <div class="stat-chip">👩‍🎓 عدد الطالبات: <strong id="previewCount">0</strong></div>
+    <div class="stat-chip">📊 الأيام المُسجَّلة: <strong id="activeDaysCount">0</strong></div>
+    <div class="stat-chip legend-chip"><span class="leg leg-n">　</span> بدون</div>
+    <div class="stat-chip legend-chip"><span class="leg leg-p">✔</span> حاضر</div>
+    <div class="stat-chip legend-chip"><span class="leg leg-a">✖</span> غائب</div>
+    <div class="stat-chip legend-chip"><span class="leg leg-e">ع</span> عذر</div>
+    <div class="stat-chip legend-chip"><span class="leg leg-m">م</span> مستمعة</div>
+</div>
+
+<!-- ===== الجدول ===== -->
+<div class="table-wrapper">
+    <div class="table-scroll">
+        <table id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>ت</th>
+                    <th>اسم الطالبة</th>
+                    <th>المجموع</th>
+                    <th colspan="4">الأسبوع الأول</th>
+                    <th colspan="4">الأسبوع الثاني</th>
+                    <th colspan="4">الأسبوع الثالث</th>
+                    <th colspan="4">الأسبوع الرابع</th>
+                    <th>ملاحظات</th>
+                    <th colspan="2" class="no-print">إجراء</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // ===== تحويل التاريخ الهجري (أم القرى) =====
+        function getHijriFromGregorian(year, month) {
+            const date = new Date(Date.UTC(year, month - 1, 1));
+            const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                month: 'long',
+                year: 'numeric'
+            });
+            return formatter.format(date);
+        }
+
+        // ===== منتقي الشهر =====
+        const MONTHS_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر",
+            "نوفمبر", "ديسمبر"
+        ];
+        let currentMonth = parseInt(localStorage.getItem("currentMonth") || "5");
+        let currentYear = parseInt(localStorage.getItem("currentYear") || "2026");
+
+        function renderMonthDisplay() {
+            const mm = String(currentMonth).padStart(2, "0");
+            const hijri = getHijriFromGregorian(currentYear, currentMonth);
+            document.getElementById("monthDisplay").textContent = `${mm} / ${currentYear} م - ${hijri}`;
+        }
+
+        window.changeMonth = function(dir) {
+            currentMonth += dir;
+            if (currentMonth > 12) { currentMonth = 1;
+                currentYear++; }
+            if (currentMonth < 1) { currentMonth = 12;
+                currentYear--; }
+            localStorage.setItem("currentMonth", currentMonth);
+            localStorage.setItem("currentYear", currentYear);
+            renderMonthDisplay();
+        };
+
+        function getMonthString() {
+            const mm = String(currentMonth).padStart(2, "0");
+            return mm + " / " + currentYear;
+        }
+
+        renderMonthDisplay();
+
+        // ===== المقرأة =====
+        let currentHalaqa = parseInt(localStorage.getItem("currentHalaqa") || "57");
+
+        function renderHalaqaDisplay() {
+            document.getElementById("halaqaDisplay").textContent = "مقرأة " + currentHalaqa;
+        }
+
+        window.changeHalaqa = function(dir) {
+            currentHalaqa = Math.min(200, Math.max(1, currentHalaqa + dir));
+            localStorage.setItem("currentHalaqa", currentHalaqa);
+            renderHalaqaDisplay();
+        };
+
+        function getHalaqaString() { return "مقرأة " + currentHalaqa; }
+
+        renderHalaqaDisplay();
+
+        // ===== المعلمة =====
+        const teacherInput = document.getElementById("teacherInput");
+        const teacherEditBtn = document.getElementById("teacherEditBtn");
+        const teacherSaveBtn = document.getElementById("teacherSaveBtn");
+        teacherInput.value = localStorage.getItem("teacherName") || "";
+
+        window.editTeacher = function() {
+            teacherInput.removeAttribute("readonly");
+            teacherInput.focus();
+            teacherEditBtn.style.display = "none";
+            teacherSaveBtn.style.display = "";
+        };
+
+        window.saveTeacher = function() {
+            const name = teacherInput.value.trim();
+            teacherInput.setAttribute("readonly", true);
+            teacherEditBtn.style.display = "";
+            teacherSaveBtn.style.display = "none";
+            localStorage.setItem("teacherName", name);
+        };
+
+        teacherInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") saveTeacher();
+        });
+
+        function getTeacherString() { return teacherInput.value.trim() || ""; }
+
+        // ===== الصلوات =====
+        const PRAYER_ORDER = ["الفجر", "الظهر", "العصر", "المغرب", "العشاء"];
+        let selectedPrayers = JSON.parse(localStorage.getItem("selectedPrayers") || '["الفجر"]');
+
+        window.selectPrayer = function(btn, prayer) {
+            if (selectedPrayers.includes(prayer)) {
+                if (selectedPrayers.length > 1) {
+                    selectedPrayers = selectedPrayers.filter(p => p !== prayer);
+                    btn.classList.remove("active");
+                }
+            } else {
+                selectedPrayers.push(prayer);
+                btn.classList.add("active");
+            }
+            selectedPrayers.sort((a, b) => PRAYER_ORDER.indexOf(a) - PRAYER_ORDER.indexOf(b));
+            localStorage.setItem("selectedPrayers", JSON.stringify(selectedPrayers));
+        };
+
+        function getPrayerString() { return selectedPrayers.join(" + "); }
+
+        document.querySelectorAll(".ppk-btn").forEach(btn => {
+            if (selectedPrayers.includes(btn.textContent.trim())) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
+
+        // ===== الأيام =====
+        let selectedDays = JSON.parse(localStorage.getItem("selectedDays") || '["الخميس","الجمعة","السبت"]');
+
+        window.toggleDay = function(btn, day) {
+            if (selectedDays.includes(day)) {
+                selectedDays = selectedDays.filter(d => d !== day);
+                btn.classList.remove("active");
+            } else {
+                selectedDays.push(day);
+                btn.classList.add("active");
+            }
+            localStorage.setItem("selectedDays", JSON.stringify(selectedDays));
+        };
+
+        function getDaysString() { return selectedDays.join(" / ") || "—"; }
+
+        document.querySelectorAll(".dpk-btn").forEach(btn => {
+            const day = btn.textContent.trim();
+            if (selectedDays.includes(day)) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
+
+        if (localStorage.getItem("layoutVersion") !== "v3-empty") {
+            localStorage.removeItem("studentsData");
+            localStorage.removeItem("names");
+            localStorage.setItem("layoutVersion", "v3-empty");
+        }
+
+        let names = JSON.parse(localStorage.getItem("names")) || [];
+        const body = document.getElementById("tableBody");
+
+        function cel(tag, html = "", cls = "", editable = false) {
+            const el = document.createElement(tag);
+            el.innerHTML = html;
+            if (cls) el.className = cls;
+            if (editable) el.contentEditable = "true";
+            return el;
+        }
+
+        // ===== حساب الأيام النشطة (التي تحتوي على أي حالة) =====
+        function calculateActiveDays() {
+            const rows = Array.from(body.querySelectorAll("tr")).slice(0, -2); // بدون صفوف التذييل
+            if (rows.length === 0) return 0;
+            let activeCount = 0;
+            for (let d = 0; d < 16; d++) {
+                for (let row of rows) {
+                    const cell = row.querySelectorAll("td.cell")[d];
+                    if (cell && cell.hasAttribute("data-state")) {
+                        activeCount++;
+                        break;
+                    }
+                }
+            }
+            return activeCount;
+        }
+
+        function updateActiveDaysDisplay() {
+            const count = calculateActiveDays();
+            document.getElementById("activeDaysCount").textContent = count;
+        }
+
+        function renderTable() {
+            body.innerHTML = "";
+            names.forEach((name, i) => {
+                const tr = document.createElement("tr");
+                tr.appendChild(cel("td", i + 1, "num"));
+                tr.appendChild(cel("td", name, "name", true));
+                tr.appendChild(cel("td", "0", "total"));
+
+                for (let d = 0; d < 16; d++) {
+                    const c = cel("td", "", "cell");
+                    c.setAttribute("data-day", d);
+                    tr.appendChild(c);
+                }
+                tr.appendChild(cel("td", "", "note-cell", true));
+
+                const tdDel = cel("td", "", "action-cell no-print");
+                const delBtn = document.createElement("button");
+                delBtn.className = "btn-icon del-btn";
+                delBtn.textContent = "🗑";
+                delBtn.dataset.action = "delete";
+                tdDel.appendChild(delBtn);
+                tr.appendChild(tdDel);
+
+                const tdEdit = cel("td", "", "action-cell no-print");
+                const editBtn = document.createElement("button");
+                editBtn.className = "btn-icon edit-btn";
+                editBtn.textContent = "✏";
+                editBtn.dataset.action = "edit";
+                tdEdit.appendChild(editBtn);
+                tr.appendChild(tdEdit);
+
+                body.appendChild(tr);
+            });
+
+            const MIN_ROWS = 10;
+            const extra = Math.max(0, MIN_ROWS - names.length);
+            for (let e = 0; e < extra; e++) {
+                const tr = document.createElement("tr");
+                tr.className = "empty-placeholder";
+                tr.appendChild(cel("td", "", "num"));
+                tr.appendChild(cel("td", "", "name"));
+                tr.appendChild(cel("td", "", "total"));
+                for (let d = 0; d < 16; d++) {
+                    tr.appendChild(cel("td", "", "cell cell-disabled"));
+                }
+                tr.appendChild(cel("td", "", "note-cell"));
+                tr.appendChild(cel("td", "", "action-cell no-print"));
+                tr.appendChild(cel("td", "", "action-cell no-print"));
+                body.appendChild(tr);
+            }
+
+            addFooterRow();
+            loadStoredData();
+            document.getElementById("previewCount").textContent = names.length;
+            updateActiveDaysDisplay();
+        }
+
+        function addFooterRow() {
+            const sumRow = document.createElement("tr");
+            sumRow.className = "footer-row";
+            sumRow.id = "sumRow";
+            sumRow.appendChild(cel("td", ""));
+            sumRow.appendChild(cel("td", "🔢 مجموع الحضور"));
+            sumRow.appendChild(cel("td", ""));
+            for (let i = 0; i < 16; i++) sumRow.appendChild(cel("td", "0", "footer-sum"));
+            sumRow.appendChild(cel("td", ""));
+            sumRow.appendChild(cel("td", "", "no-print"));
+            sumRow.appendChild(cel("td", "", "no-print"));
+            body.appendChild(sumRow);
+
+            const pctRow = document.createElement("tr");
+            pctRow.className = "footer-row";
+            pctRow.id = "pctRow";
+            pctRow.appendChild(cel("td", ""));
+            pctRow.appendChild(cel("td", "📊 نسبة الحضور"));
+            pctRow.appendChild(cel("td", ""));
+            for (let i = 0; i < 16; i++) pctRow.appendChild(cel("td", "0%", "footer-stat"));
+            pctRow.appendChild(cel("td", ""));
+            pctRow.appendChild(cel("td", "", "no-print"));
+            pctRow.appendChild(cel("td", "", "no-print"));
+            body.appendChild(pctRow);
+
+            updateFooterStats();
+        }
+
+        function updateFooterStats() {
+            const allRows = Array.from(body.querySelectorAll("tr"));
+            const studentRows = allRows.slice(0, -2);
+            const sumCells = body.querySelectorAll("td.footer-sum");
+            const pctCells = body.querySelectorAll("td.footer-stat");
+            for (let d = 0; d < 16; d++) {
+                let present = 0;
+                studentRows.forEach(row => {
+                    const cells = row.querySelectorAll("td.cell");
+                    if (cells[d] && cells[d].getAttribute("data-state") === "1") present++;
+                });
+                if (sumCells[d]) sumCells[d].textContent = present;
+                const pct = studentRows.length ? Math.round(present / studentRows.length * 100) : 0;
+                if (pctCells[d]) pctCells[d].textContent = pct + "%";
+            }
+        }
+
+        body.addEventListener("click", e => {
+            const cell = e.target.closest("td.cell");
+            if (cell) { toggleCell(cell); return; }
+            const btn = e.target.closest("button");
+            if (!btn) return;
+            const row = btn.closest("tr");
+            if (!row) return;
+            const studentRows = Array.from(body.querySelectorAll("tr")).slice(0, -2);
+            const idx = studentRows.indexOf(row);
+            if (idx === -1) return;
+            if (btn.dataset.action === "delete") deleteStudent(idx);
+            else if (btn.dataset.action === "edit") editStudent(idx, row);
+        });
+
+        function toggleCell(cell) {
+            const cur = cell.getAttribute("data-state");
+            let next, txt;
+            if (!cur) { next = "1";
+                txt = "✔"; } else if (cur === "1") { next = "0";
+                txt = "✖"; } else if (cur === "0") { next = "e";
+                txt = "ع"; } else if (cur === "e") { next = "m";
+                txt = "م"; } else { next = "";
+                txt = ""; }
+            if (next === "") cell.removeAttribute("data-state");
+            else cell.setAttribute("data-state", next);
+            cell.textContent = txt;
+            updateRowTotal(cell.closest("tr"));
+            updateFooterStats();
+            updateActiveDaysDisplay();
+        }
+
+        function updateRowTotal(row) {
+            const cells = row.querySelectorAll("td.cell");
+            let total = 0;
+            cells.forEach(c => { if (c.getAttribute("data-state") === "1") total++; });
+            const tc = row.querySelector(".total");
+            if (tc) tc.textContent = total;
+        }
+
+        function updateAllTotals() {
+            const rows = Array.from(body.querySelectorAll("tr")).slice(0, -2);
+            rows.forEach(r => updateRowTotal(r));
+        }
+
+        body.addEventListener("blur", e => {
+            const t = e.target;
+            if (t.isContentEditable) {
+                if (t.classList.contains("name")) {
+                    const row = t.closest("tr");
+                    const studentRows = Array.from(body.querySelectorAll("tr")).slice(0, -2);
+                    const idx = studentRows.indexOf(row);
+                    if (idx !== -1) names[idx] = t.innerText.trim() || names[idx];
+                    saveNamesToStorage();
+                }
+                saveFullData();
+            }
+        }, true);
+
+        function editStudent(idx, row) {
+            const nc = row.querySelector(".name");
+            const noteC = row.querySelector(".note-cell");
+            const newName = prompt("تعديل الاسم:", nc ? nc.innerText : names[idx]);
+            if (newName === null) return;
+            const newNote = prompt("الملاحظات:", noteC ? noteC.innerText : "");
+            if (newNote === null) return;
+            names[idx] = newName.trim() || names[idx];
+            if (nc) nc.innerText = names[idx];
+            if (noteC) noteC.innerText = newNote;
+            saveNamesToStorage();
+            saveFullData();
+            document.getElementById("previewCount").textContent = names.length;
+        }
+
+        window.addStudent = function() {
+            const inp = document.getElementById("newName");
+            const n = inp.value.trim();
+            if (!n) return alert("الرجاء إدخال اسم");
+            names.push(n);
+            inp.value = "";
+            saveNamesToStorage();
+            renderTable();
+        };
+
+        function deleteStudent(idx) {
+            if (!confirm(`حذف "${names[idx]}"؟`)) return;
+            names.splice(idx, 1);
+            saveNamesToStorage();
+            let d = JSON.parse(localStorage.getItem("studentsData") || "[]");
+            if (d.length > idx) d.splice(idx, 1);
+            localStorage.setItem("studentsData", JSON.stringify(d));
+            renderTable();
+        }
+
+        function saveNamesToStorage() { localStorage.setItem("names", JSON.stringify(names)); }
+
+        function saveFullData() {
+            saveNamesToStorage();
+            const rows = Array.from(body.querySelectorAll("tr")).slice(0, -2);
+            const data = rows.map(row => {
+                const cells = row.querySelectorAll("td");
+                const rowData = [];
+                for (let j = 3; j < 19; j++) rowData.push(cells[j].getAttribute("data-state") || "");
+                rowData.push(cells[19].innerText);
+                return rowData;
+            });
+            localStorage.setItem("studentsData", JSON.stringify(data));
+        }
+
+        function loadStoredData() {
+            const stored = localStorage.getItem("studentsData");
+            if (!stored) return;
+            try {
+                const data = JSON.parse(stored);
+                const rows = Array.from(body.querySelectorAll("tr")).slice(0, -2);
+                for (let i = 0; i < Math.min(data.length, rows.length); i++) {
+                    const rd = data[i];
+                    const cells = rows[i].querySelectorAll("td");
+                    for (let j = 0; j < 16; j++) {
+                        const val = rd[j];
+                        const c = cells[j + 3];
+                        if (val === "1") { c.setAttribute("data-state", "1");
+                            c.textContent = "✔"; } else if (val === "0") { c.setAttribute("data-state", "0");
+                            c.textContent = "✖"; } else if (val === "e") { c.setAttribute("data-state", "e");
+                            c.textContent = "ع"; } else if (val === "m") { c.setAttribute("data-state", "m");
+                            c.textContent = "م"; } else { c.removeAttribute("data-state");
+                            c.textContent = ""; }
+                    }
+                    if (rd[16] !== undefined) cells[19].innerText = rd[16];
+                }
+                updateAllTotals();
+                updateFooterStats();
+                updateActiveDaysDisplay();
+            } catch (e) { console.warn("خطأ في البيانات"); }
+        }
+
+        setInterval(saveFullData, 60000);
+        window.saveData = saveFullData;
+
+        // ===== تصدير Excel =====
+        window.exportToExcel = function() {
+            try {
+                const tbl = document.getElementById("attendanceTable").cloneNode(true);
+                tbl.querySelectorAll(".btn-icon").forEach(b => b.remove());
+                tbl.querySelectorAll(".no-print").forEach(el => el.remove());
+                tbl.querySelectorAll(".empty-placeholder").forEach(el => el.remove());
+                tbl.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.table_to_sheet(tbl);
+                XLSX.utils.book_append_sheet(wb, ws, "الحضور");
+                const fileName = "مقارئ الأوقاف الإلكترونية " + getHalaqaString() + ".xlsx";
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const blob = new Blob([wbout], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { document.body.removeChild(a);
+                    URL.revokeObjectURL(url); }, 1000);
+            } catch (err) {
+                alert("حدث خطأ أثناء التصدير: " + err.message);
+            }
+        };
+
+        // ===== استيراد CSV =====
+        document.getElementById("importCSVFile").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const lines = ev.target.result.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+                if (!lines.length) return alert("الملف فارغ");
+                if (confirm(`استبدال القائمة بـ ${lines.length} طالبة؟`)) {
+                    names = lines;
+                    saveNamesToStorage();
+                    localStorage.removeItem("studentsData");
+                    renderTable();
+                }
+                this.value = "";
+            };
+            reader.readAsText(file, "UTF-8");
+        });
+
+        // ===== استيراد Excel =====
+        document.getElementById("importExcelFile").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const data = new Uint8Array(ev.target.result);
+                const wb = XLSX.read(data, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                if (!rows.length) return alert("الملف فارغ");
+                let nameCol = -1;
+                const kws = ["اسم", "الاسم", "طالبة", "student", "name"];
+                for (let i = 0; i < Math.min(5, rows.length); i++) {
+                    const row = rows[i] || [];
+                    for (let j = 0; j < row.length; j++) {
+                        if (kws.some(k => String(row[j] || "").toLowerCase().includes(k))) { nameCol = j; break; }
+                    }
+                    if (nameCol !== -1) break;
+                }
+                if (nameCol === -1) {
+                    let sc = 0;
+                    for (let i = 0; i < Math.min(10, rows.length); i++) {
+                        const fc = rows[i] ? rows[i][0] : null;
+                        if (fc && !isNaN(parseInt(fc))) sc++;
+                    }
+                    nameCol = (sc >= 3) ? 1 : 0;
+                }
+                const imported = [];
+                rows.forEach(row => {
+                    if (!row) return;
+                    let nm = nameCol < row.length ? String(row[nameCol] || "").trim() : String(row.find(c =>
+                        c && String(c).trim()) || "").trim();
+                    if (nm && nm.length > 1 && !/^\d+$/.test(nm)) imported.push(nm);
+                });
+                if (!imported.length) return alert("لم يتم العثور على أسماء");
+                if (confirm(`تم العثور على ${imported.length} اسم. استبدال؟`)) {
+                    names = imported;
+                    saveNamesToStorage();
+                    localStorage.removeItem("studentsData");
+                    renderTable();
+                }
+                this.value = "";
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // ===== الطباعة / تصدير PDF =====
+        window.exportPDF = function() {
+            customPrint(true);
+        };
+
+        window.customPrint = function(forPDF = false) {
+            var teacher = getTeacherString();
+            var month = getMonthString();
+            var time = getPrayerString();
+            var days = getDaysString();
+            var maqraa = getHalaqaString();
+            var count = names.length;
+            var activeDays = calculateActiveDays();
+
+            var tbl = document.getElementById("attendanceTable").cloneNode(true);
+            tbl.querySelectorAll(".no-print").forEach(function(el) { el.remove(); });
+            tbl.querySelectorAll("[contenteditable]").forEach(function(el) { el.removeAttribute(
+                    "contenteditable"); });
+            tbl.querySelectorAll(".btn-icon").forEach(function(b) { b.remove(); });
+            tbl.querySelectorAll(".empty-placeholder").forEach(function(el) { el.remove(); });
+
+            tbl.querySelectorAll("td.cell[data-state='1']").forEach(function(c) { c.style.background =
+                    "#a5d6a7";
+                c.style.color = "#1b5e20"; });
+            tbl.querySelectorAll("td.cell[data-state='0']").forEach(function(c) { c.style.background =
+                    "#ef9a9a";
+                c.style.color = "#b71c1c"; });
+            tbl.querySelectorAll("td.cell[data-state='e']").forEach(function(c) { c.style.background =
+                    "#ffe0b2";
+                c.style.color = "#e65100"; });
+            tbl.querySelectorAll("td.cell[data-state='m']").forEach(function(c) { c.style.background =
+                    "#e1bee7";
+                c.style.color = "#6a1b9a"; });
+            tbl.querySelectorAll("td.num").forEach(function(c) { c.style.background = "#333";
+                c.style.color = "#f1c40f"; });
+            tbl.querySelectorAll("td.name").forEach(function(c) { c.style.background = "#fdf6e3"; });
+            tbl.querySelectorAll("thead th").forEach(function(c) { c.style.background = "#1a1a2e";
+                c.style.color = "#f0d080"; });
+            tbl.querySelectorAll("tr.footer-row td").forEach(function(c) { c.style.background = "#1a1a2e";
+                c.style.color = "#f0d080"; });
+
+            var sigData = localStorage.getItem("signatureImage") || "";
+            var sigCell = sigData ?
+                '<td style="padding:4px 8px;border:1px solid #ddd;text-align:center;min-width:90px;">' +
+                '<div style="font-size:9px;font-weight:bold;margin-bottom:2px;color:#555;">التوقيع</div>' +
+                '<img src="' + sigData +
+                '" style="max-height:35px;max-width:90px;object-fit:contain;display:block;margin:0 auto;">' +
+                '</td>' :
+                '<td style="padding:8px 12px;border:1px solid #ddd;min-width:90px;text-align:center;"><strong>التوقيع:</strong><br>............</td>';
+
+            var css = '* {box-sizing:border-box;margin:0;padding:0;}' +
+                'body{font-family:Arial,sans-serif;background:white;padding:10px;direction:rtl;}' +
+                '.ctrl{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}' +
+                '.ctrl button{padding:8px 18px;border-radius:20px;border:none;cursor:pointer;font-size:14px;font-weight:700;}' +
+                '.bz{background:#ecf0f1;color:#333;} .bp{background:#8e44ad;color:white;}' +
+                '.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}' +
+                'table{width:100%;border-collapse:collapse;font-size:11px;}' +
+                'th,td{border:1px solid #999;padding:5px 3px;text-align:center;vertical-align:middle;}' +
+                'th{background:#1a1a2e!important;color:#f0d080!important;font-weight:700;}' +
+                'td.name{text-align:right;font-weight:700;padding-right:8px;background:#fdf6e3!important;min-width:120px;}' +
+                'td.total{font-weight:900;background:#f5f5f5;}' +
+                'td.note-cell{min-width:60px;}' +
+                '@media print{.ctrl{display:none!important;}body{padding:0;}table{font-size:8px;}@page{size:landscape;margin:5mm;}}';
+
+            var infoRow = '<tr style="background:#fdf6e3;">' +
+                '<td style="padding:8px 12px;border:1px solid #ddd;"><strong>المقرأة:</strong> ' + maqraa +
+                '</td>' +
+                '<td style="padding:8px 12px;border:1px solid #ddd;"><strong>المعلمة:</strong> ' + teacher +
+                '</td>' +
+                '<td style="padding:8px 12px;border:1px solid #ddd;"><strong>عدد الطالبات:</strong> ' + count +
+                '</td>' +
+                '<td style="padding:8px 12px;border:1px solid #ddd;"><strong>الشهر:</strong> ' + month + '</td>' +
+                '<td style="padding:8px 12px;border:1px solid #ddd;"><strong>التوقيت:</strong> ' + time + '</td>' +
+                '<td style="padding:8px 12px;border:1px solid #ddd;"><strong>الأيام:</strong> ' + days + '</td>' +
+                sigCell +
+                '</tr>';
+
+            var pdfNote = forPDF ? '<div style="background:#fff3cd;padding:10px;margin:10px 0;border-radius:8px;text-align:center;font-weight:bold;">' +
+                'للتصدير إلى PDF: استخدم زر "طباعة" أدناه، ثم اختر "حفظ كـ PDF" من قائمة الطابعة.</div>' : '';
+
+            var tblHTML = tbl.outerHTML;
+
+            var html = '<!DOCTYPE html><html dir="rtl"><head>' +
+                '<meta charset="UTF-8">' +
+                '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+                '<title>مقارئ الأوقاف الإلكترونية - تقرير متابعة الطالبات</title>' +
+                '<style>' + css + '</style>' +
+                '</head><body>' +
+                '<div class="ctrl">' +
+                '<button class="bz" onclick="document.body.style.zoom=(parseFloat(document.body.style.zoom||1)-0.1).toFixed(1)">🔍−</button>' +
+                '<button class="bz" onclick="document.body.style.zoom=1">100%</button>' +
+                '<button class="bz" onclick="document.body.style.zoom=(parseFloat(document.body.style.zoom||1)+0.1).toFixed(1)">🔍+</button>' +
+                '<button class="bp" onclick="window.print()">🖨️ طباعة / PDF</button>' +
+                '</div>' +
+                pdfNote +
+                '<div style="margin-bottom:12px;border:2px solid #c9a84c;border-radius:10px;overflow:hidden;">' +
+                '<div style="background:#1a1a2e;color:#f0d080;text-align:center;padding:10px;font-size:16px;font-weight:bold;">' +
+                'بسم الله الرحمن الرحيم<br>' +
+                '<span style="font-size:13px;opacity:0.8;">مقارئ الأوقاف الإلكترونية - تقرير متابعة الطالبات</span>' +
+                '</div>' +
+                '<table style="width:100%;border-collapse:collapse;font-size:12px;">' + infoRow + '</table>' +
+                '</div>' +
+                '<div style="margin-bottom: 8px; font-weight: bold; text-align: center;">الأيام المُسجَّلة: ' + activeDays + '</div>' +
+                '<div class="tw">' + tblHTML + '</div>' +
+                '</body></html>';
+
+            var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var pw = window.open(url, '_blank');
+            if (!pw) alert("يرجى السماح بفتح النوافذ المنبثقة ثم المحاولة مجدداً");
+            else pw.focus();
+        };
+
+        window.clearData = function() {
+            if (!confirm("مسح جميع البيانات نهائياً؟")) return;
+            localStorage.clear();
+            names = [];
+            renderTable();
+        };
+
+        // ===== التوقيع الإلكتروني =====
+        document.getElementById("signatureFile").addEventListener("change", function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    var ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    var data = imageData.data;
+
+                    var totalBright = 0;
+                    for (var i = 0; i < data.length; i += 4) {
+                        totalBright += (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    }
+                    var avgBright = totalBright / (data.length / 4);
+                    var threshold = Math.max(180, avgBright * 0.92);
+
+                    for (var j = 0; j < data.length; j += 4) {
+                        var r = data[j],
+                            g = data[j + 1],
+                            b = data[j + 2];
+                        var brightness = (r + g + b) / 3;
+                        if (brightness > threshold) {
+                            data[j + 3] = 0;
+                        } else {
+                            var factor = 1 - (brightness / threshold);
+                            data[j + 3] = Math.min(255, Math.round(factor * 255 * 1.5));
+                        }
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+
+                    var pixels = imageData.data;
+                    var minX = canvas.width,
+                        minY = canvas.height,
+                        maxX = 0,
+                        maxY = 0;
+                    for (var y = 0; y < canvas.height; y++) {
+                        for (var x = 0; x < canvas.width; x++) {
+                            var idx = (y * canvas.width + x) * 4;
+                            if (pixels[idx + 3] > 10) {
+                                if (x < minX) minX = x;
+                                if (x > maxX) maxX = x;
+                                if (y < minY) minY = y;
+                                if (y > maxY) maxY = y;
+                            }
+                        }
+                    }
+                    var pad = 8;
+                    minX = Math.max(0, minX - pad);
+                    minY = Math.max(0, minY - pad);
+                    maxX = Math.min(canvas.width, maxX + pad);
+                    maxY = Math.min(canvas.height, maxY + pad);
+
+                    var cropW = maxX - minX;
+                    var cropH = maxY - minY;
+                    var cropCanvas = document.createElement("canvas");
+                    cropCanvas.width = cropW;
+                    cropCanvas.height = cropH;
+                    var cropCtx = cropCanvas.getContext("2d");
+                    cropCtx.drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+
+                    var cropImg = new Image();
+                    cropImg.onload = function() {
+                        var maxWidth = 200;
+                        var ratio = maxWidth / cropImg.width;
+                        var finalCanvas = document.createElement("canvas");
+                        finalCanvas.width = maxWidth;
+                        finalCanvas.height = cropImg.height * ratio;
+                        var finalCtx = finalCanvas.getContext("2d");
+                        finalCtx.drawImage(cropImg, 0, 0, finalCanvas.width, finalCanvas.height);
+                        var finalDataUrl = finalCanvas.toDataURL("image/png");
+
+                        var sizeInMB = (finalDataUrl.length * 0.75) / (1024 * 1024);
+                        if (sizeInMB > 2) {
+                            alert("⚠️ حجم التوقيع لا يزال كبيرًا (" + sizeInMB.toFixed(1) +
+                                " ميجابايت). قد يتجاوز سعة التخزين. يُنصح باستخدام صورة أوضح خلفية بيضاء.");
+                        }
+                        localStorage.setItem("signatureImage", finalDataUrl);
+                        alert("✅ تم رفع التوقيع وضغطه بنجاح! سيظهر شفافاً في الطباعة.");
+                    };
+                    cropImg.src = cropCanvas.toDataURL("image/png");
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+            this.value = "";
+        });
+
+        document.getElementById("newName").addEventListener("keydown", e => {
+            if (e.key === "Enter") window.addStudent();
+        });
+
+        renderTable();
+    })();
+</script>
+</body>
+</html>
